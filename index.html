@@ -1,19 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Fridge Monitor</title>
-  <!-- Use compat libraries to enable old namespace usage -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <h1>Fridge Monitor</h1>
   <p>Temperature: <span id="temp">--</span> °C</p>
   <p>Humidity: <span id="humidity">--</span> %</p>
 
+  <canvas id="fridgeChart" width="600" height="300"></canvas>
+
   <script>
-    // Your Firebase config from Project Settings → Web app
     const firebaseConfig = {
       apiKey: "AIzaSyD9S9bFeWOgHWIInk2IF2SGacb2vAdWwlk",
       authDomain: "curing-cabinet.firebaseapp.com",
@@ -25,18 +26,78 @@
       measurementId: "G-2S42TL5BFH"
     };
 
-    // Initialize Firebase
     const app = firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // Listen for temperature changes
-    firebase.database().ref("/fridge/temp").on("value", (snapshot) => {
-      document.getElementById("temp").textContent = snapshot.val();
+    const tempData = [];
+    const humidityData = [];
+    const labels = [];
+
+    const ctx = document.getElementById('fridgeChart').getContext('2d');
+    const fridgeChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Temperature (°C)',
+            data: tempData,
+            borderColor: 'rgb(255, 99, 132)',
+            fill: false,
+            tension: 0.1
+          },
+          {
+            label: 'Humidity (%)',
+            data: humidityData,
+            borderColor: 'rgb(54, 162, 235)',
+            fill: false,
+            tension: 0.1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        animation: false,
+        scales: {
+          x: {
+            display: true,
+            title: {
+              display: true,
+              text: 'Time'
+            }
+          },
+          y: {
+            beginAtZero: false
+          }
+        }
+      }
     });
 
-    // Listen for humidity changes
-    firebase.database().ref("/fridge/humidity").on("value", (snapshot) => {
-      document.getElementById("humidity").textContent = snapshot.val();
+    function addData(temp, humidity) {
+      const now = new Date();
+      const timeLabel = now.toLocaleTimeString();
+
+      labels.push(timeLabel);
+      tempData.push(temp);
+      humidityData.push(humidity);
+
+      if (labels.length > 20) {
+        labels.shift();
+        tempData.shift();
+        humidityData.shift();
+      }
+
+      fridgeChart.update();
+    }
+
+    firebase.database().ref("/fridge/temp").on("value", (snapshot) => {
+      const temp = snapshot.val();
+      document.getElementById("temp").textContent = temp;
+      firebase.database().ref("/fridge/humidity").once("value").then(humiditySnapshot => {
+        const humidity = humiditySnapshot.val();
+        document.getElementById("humidity").textContent = humidity;
+        addData(temp, humidity);
+      });
     });
   </script>
 </body>

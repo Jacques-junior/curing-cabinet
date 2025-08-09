@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <title>Fridge Monitor</title>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
+  <!-- Use compat libraries to enable old namespace usage -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body>
   <h1>Fridge Monitor</h1>
@@ -13,16 +14,16 @@
 
   <script>
     // Your Firebase config from Project Settings → Web app
-   const firebaseConfig = {
-  apiKey: "AIzaSyD9S9bFeWOgHWIInk2IF2SGacb2vAdWwlk",
-  authDomain: "curing-cabinet.firebaseapp.com",
-  databaseURL: "https://curing-cabinet-default-rtdb.firebaseio.com",
-  projectId: "curing-cabinet",
-  storageBucket: "curing-cabinet.firebasestorage.app",
-  messagingSenderId: "677333326629",
-  appId: "1:677333326629:web:544599b649ababd12018cc",
-  measurementId: "G-2S42TL5BFH"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyD9S9bFeWOgHWIInk2IF2SGacb2vAdWwlk",
+      authDomain: "curing-cabinet.firebaseapp.com",
+      databaseURL: "https://curing-cabinet-default-rtdb.firebaseio.com/",
+      projectId: "curing-cabinet",
+      storageBucket: "curing-cabinet.firebasestorage.app",
+      messagingSenderId: "677333326629",
+      appId: "1:677333326629:web:544599b649ababd12018cc",
+      measurementId: "G-2S42TL5BFH"
+    };
 
     // Initialize Firebase
     const app = firebase.initializeApp(firebaseConfig);
@@ -40,4 +41,3 @@
   </script>
 </body>
 </html>
-

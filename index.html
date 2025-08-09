@@ -1,20 +1,68 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Fridge Monitor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fridge Monitor Dashboard</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- SB Admin 2 Fonts & Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Firebase compat -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      background-color: #f8f9fc;
+      padding: 2rem;
+    }
+    .card {
+      box-shadow: 0 0.15rem 1.75rem 0 rgb(58 59 69 / 15%);
+    }
+  </style>
 </head>
 <body>
-  <h1>Fridge Monitor</h1>
-  <p>Temperature: <span id="temp">--</span> °C</p>
-  <p>Humidity: <span id="humidity">--</span> %</p>
 
-  <canvas id="fridgeChart" width="600" height="300"></canvas>
+  <div class="container">
+    <h1 class="mb-4 text-primary">Fridge Monitor Dashboard</h1>
+
+    <div class="row mb-4">
+      <!-- Temperature card -->
+      <div class="col-md-6 mb-3">
+        <div class="card border-left-danger shadow h-100 py-2">
+          <div class="card-body">
+            <h5 class="card-title text-danger">Temperature</h5>
+            <p class="card-text display-4" id="temp">-- °C</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Humidity card -->
+      <div class="col-md-6 mb-3">
+        <div class="card border-left-primary shadow h-100 py-2">
+          <div class="card-body">
+            <h5 class="card-title text-primary">Humidity</h5>
+            <p class="card-text display-4" id="humidity">-- %</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="card shadow mb-4">
+      <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Temperature & Humidity Over Time</h6>
+      </div>
+      <div class="card-body">
+        <canvas id="fridgeChart" height="100"></canvas>
+      </div>
+    </div>
+  </div>
 
   <script>
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyD9S9bFeWOgHWIInk2IF2SGacb2vAdWwlk",
       authDomain: "curing-cabinet.firebaseapp.com",
@@ -26,13 +74,16 @@
       measurementId: "G-2S42TL5BFH"
     };
 
+    // Initialize Firebase
     const app = firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
+    // Chart data arrays
     const tempData = [];
     const humidityData = [];
     const labels = [];
 
+    // Setup Chart.js chart
     const ctx = document.getElementById('fridgeChart').getContext('2d');
     const fridgeChart = new Chart(ctx, {
       type: 'line',
@@ -42,32 +93,59 @@
           {
             label: 'Temperature (°C)',
             data: tempData,
-            borderColor: 'rgb(255, 99, 132)',
-            fill: false,
-            tension: 0.1
+            borderColor: '#e74a3b',
+            backgroundColor: 'rgba(231, 74, 59, 0.2)',
+            fill: true,
+            tension: 0.3,
+            yAxisID: 'y'
           },
           {
             label: 'Humidity (%)',
             data: humidityData,
-            borderColor: 'rgb(54, 162, 235)',
-            fill: false,
-            tension: 0.1
+            borderColor: '#4e73df',
+            backgroundColor: 'rgba(78, 115, 223, 0.2)',
+            fill: true,
+            tension: 0.3,
+            yAxisID: 'y1'
           }
         ]
       },
       options: {
         responsive: true,
-        animation: false,
+        interaction: {
+          mode: 'index',
+          intersect: false,
+        },
+        stacked: false,
         scales: {
+          y: {
+            type: 'linear',
+            position: 'left',
+            title: {
+              display: true,
+              text: 'Temperature (°C)'
+            },
+            min: 0,
+            max: 40
+          },
+          y1: {
+            type: 'linear',
+            position: 'right',
+            title: {
+              display: true,
+              text: 'Humidity (%)'
+            },
+            min: 0,
+            max: 100,
+            grid: {
+              drawOnChartArea: false
+            }
+          },
           x: {
-            display: true,
             title: {
               display: true,
               text: 'Time'
             }
-          },
-          y: {
-            beginAtZero: false
           }
         }
       }
@@ -90,15 +168,20 @@
       fridgeChart.update();
     }
 
-    firebase.database().ref("/fridge/temp").on("value", (snapshot) => {
-      const temp = snapshot.val();
-      document.getElementById("temp").textContent = temp;
+    // Listen for Firebase updates
+    firebase.database().ref("/fridge/temp").on("value", (tempSnapshot) => {
+      const temp = tempSnapshot.val();
+      document.getElementById("temp").textContent = temp.toFixed(1) + " °C";
+
       firebase.database().ref("/fridge/humidity").once("value").then(humiditySnapshot => {
         const humidity = humiditySnapshot.val();
-        document.getElementById("humidity").textContent = humidity;
+        document.getElementById("humidity").textContent = humidity.toFixed(1) + " %";
         addData(temp, humidity);
       });
     });
   </script>
+
+  <!-- Bootstrap JS bundle (includes Popper) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

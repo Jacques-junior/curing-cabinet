@@ -1,18 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <title>Fridge Monitor</title>
-  <script type="module">
-    // Import Firebase SDK
-   // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
+</head>
+<body>
+  <h1>Fridge Monitor</h1>
+  <p>Temperature: <span id="temp">--</span> °C</p>
+  <p>Humidity: <span id="humidity">--</span> %</p>
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
+  <script>
+    // Your Firebase config from Project Settings → Web app
+   const firebaseConfig = {
   apiKey: "AIzaSyD9S9bFeWOgHWIInk2IF2SGacb2vAdWwlk",
   authDomain: "curing-cabinet.firebaseapp.com",
   databaseURL: "https://curing-cabinet-default-rtdb.firebaseio.com",
@@ -23,25 +24,20 @@ const firebaseConfig = {
   measurementId: "G-2S42TL5BFH"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-    
-    const tempEl = document.getElementById("temp");
-    const humidityEl = document.getElementById("humidity");
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
 
-    onValue(ref(db, "/fridge/temp"), (snapshot) => {
-      tempEl.textContent = snapshot.val();
+    // Listen for temperature changes
+    firebase.database().ref("/fridge/temp").on("value", (snapshot) => {
+      document.getElementById("temp").textContent = snapshot.val();
     });
 
-    onValue(ref(db, "/fridge/humidity"), (snapshot) => {
-      humidityEl.textContent = snapshot.val();
+    // Listen for humidity changes
+    firebase.database().ref("/fridge/humidity").on("value", (snapshot) => {
+      document.getElementById("humidity").textContent = snapshot.val();
     });
   </script>
-</head>
-<body>
-  <h1>Fridge Dashboard</h1>
-  <p>Temperature: <span id="temp">--</span> °C</p>
-  <p>Humidity: <span id="humidity">--</span> %</p>
 </body>
 </html>
+

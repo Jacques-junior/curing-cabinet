@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Fridge Monitor</title>
+  <script type="module">
+    // Import Firebase SDK
+   // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyD9S9bFeWOgHWIInk2IF2SGacb2vAdWwlk",
+  authDomain: "curing-cabinet.firebaseapp.com",
+  databaseURL: "https://curing-cabinet-default-rtdb.firebaseio.com",
+  projectId: "curing-cabinet",
+  storageBucket: "curing-cabinet.firebasestorage.app",
+  messagingSenderId: "677333326629",
+  appId: "1:677333326629:web:544599b649ababd12018cc",
+  measurementId: "G-2S42TL5BFH"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+    
+    const tempEl = document.getElementById("temp");
+    const humidityEl = document.getElementById("humidity");
+
+    onValue(ref(db, "/fridge/temp"), (snapshot) => {
+      tempEl.textContent = snapshot.val();
+    });
+
+    onValue(ref(db, "/fridge/humidity"), (snapshot) => {
+      humidityEl.textContent = snapshot.val();
+    });
+  </script>
+</head>
+<body>
+  <h1>Fridge Dashboard</h1>
+  <p>Temperature: <span id="temp">--</span> °C</p>
+  <p>Humidity: <span id="humidity">--</span> %</p>
+</body>
+</html>

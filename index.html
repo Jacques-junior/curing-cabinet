@@ -61,11 +61,21 @@
     </div>
   </div>
 
+   <div class="col-md-6 mb-3">
+        <div class="card border-left-primary shadow h-100 py-4">
+          <div class="card-body">
+            <h5 class="card-title text-primary">Target Temperature</h5>
+              <div class="input-group mt-3" style="max-width: 300px;">
+                <input type="number" id="setTempInput" class="form-control" placeholder="Enter target °C">
+                  <button id="setTempBtn" class="btn btn-primary">Set Target Temp</button>
+                </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   <!--button id="increaseTemp" class="btn btn-secondary">Increase Target Temp by 1°C</button-->
-<div class="input-group mt-3" style="max-width: 300px;">
-  <input type="number" id="setTempInput" class="form-control" placeholder="Enter target °C">
-  <button id="setTempBtn" class="btn btn-primary">Set Target Temp</button>
-</div>
+
 
 
   <script>
@@ -213,7 +223,7 @@ document.getElementById('setTempBtn').addEventListener('click', async () => {
   await targetTempRef.set(newTarget);
 
   alert('✅ Target temperature set to ' + newTarget + '°C');
-  inputField.value = ""; // clear input after setting
+  //inputField.value = ""; // clear input after setting
 });
 
 

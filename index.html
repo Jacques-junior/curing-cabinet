@@ -25,54 +25,58 @@
 </head>
 <body>
 
-  <div class="container">
-    <h1 class="mb-4 text-primary">Fridge Monitor Dashboard</h1>
+ <div class="container">
+  <h1 class="mb-4 text-primary">Fridge Monitor Dashboard</h1>
 
-    <div class="row mb-4">
-      <!-- Temperature card -->
-      <div class="col-md-6 mb-3">
-        <div class="card border-left-danger shadow h-100 py-2">
-          <div class="card-body">
-            <h5 class="card-title text-danger">Temperature</h5>
-            <p class="card-text display-4" id="temp">-- °C</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Humidity card -->
-      <div class="col-md-6 mb-3">
-        <div class="card border-left-primary shadow h-100 py-2">
-          <div class="card-body">
-            <h5 class="card-title text-primary">Humidity</h5>
-            <p class="card-text display-4" id="humidity">-- %</p>
-          </div>
+  <!-- Temperature + Humidity cards -->
+  <div class="row mb-4">
+    <div class="col-md-6 mb-3">
+      <div class="card border-left-danger shadow h-100 py-2">
+        <div class="card-body text-center">
+          <h5 class="card-title text-danger">Temperature</h5>
+          <p class="card-text display-4" id="temp">-- °C</p>
         </div>
       </div>
     </div>
 
-    <!-- Chart -->
-    <div class="card shadow mb-4">
-      <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Temperature & Humidity Over Time</h6>
-      </div>
-      <div class="card-body">
-  <canvas id="fridgeChart" width="600" height="300"></canvas>
+    <div class="col-md-6 mb-3">
+      <div class="card border-left-primary shadow h-100 py-2">
+        <div class="card-body text-center">
+          <h5 class="card-title text-primary">Humidity</h5>
+          <p class="card-text display-4" id="humidity">-- %</p>
+        </div>
       </div>
     </div>
   </div>
 
-   <div class="col-md-6 mb-3">
-        <div class="card border-left-primary shadow h-100 py-4">
-          <div class="card-body">
-            <h5 class="card-title text-primary">Target Temperature</h5>
-              <div class="input-group mt-3" style="max-width: 300px;">
-                <input type="number" id="setTempInput" class="form-control" placeholder="Enter target °C">
-                  <button id="setTempBtn" class="btn btn-primary">Set Target Temp</button>
-                </div>
+  <!-- Chart -->
+  <div class="card shadow mb-4">
+    <div class="card-header py-3">
+      <h6 class="m-0 font-weight-bold text-primary">Temperature & Humidity Over Time</h6>
+    </div>
+    <div class="card-body">
+      <canvas id="fridgeChart" width="600" height="300"></canvas>
+    </div>
+  </div>
+
+  <!-- Target Temperature Card -->
+  <div class="row justify-content-center mb-4">
+    <div class="col-md-6">
+      <div class="card border-left-success shadow h-100 py-4">
+        <div class="card-body text-center">
+          <h5 class="card-title text-success">Target Temperature</h5>
+          <p class="card-text display-5" id="targetTemp">-- °C</p>
+
+          <!-- Input + Button -->
+          <div class="input-group mt-3" style="max-width: 300px; margin: 0 auto;">
+            <input type="number" id="setTempInput" class="form-control" placeholder="Enter target °C">
+            <button id="setTempBtn" class="btn btn-primary">Set</button>
           </div>
         </div>
       </div>
     </div>
+  </div>
+</div>
 
   <!--button id="increaseTemp" class="btn btn-secondary">Increase Target Temp by 1°C</button-->
 

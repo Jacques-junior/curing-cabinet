@@ -77,38 +77,38 @@
     </div>
   </div>
 
-  
-<div class="row justify-content-center mb-4">
+  <div class="row justify-content-center mb-4">
   <!-- Meat Mode Card -->
   <div class="col-md-3 mb-3">
-    <div class="card mode-card border-left-danger shadow h-100 py-4 text-center">
+    <div id="meatCard" class="card border-left-danger shadow h-100 py-4 text-center mode-card">
       <div class="card-body">
         <h5 class="card-title text-danger">Meat</h5>
-        <button id="meatBtn" class="btn btn-outline-danger mt-3">Select</button>
+        <button id="meatBtn" class="btn btn-outline-dark mt-3">Select</button>
       </div>
     </div>
   </div>
 
   <!-- Vegetables Mode Card -->
   <div class="col-md-3 mb-3">
-    <div class="card mode-card border-left-primary shadow h-100 py-4 text-center">
+    <div id="vegCard" class="card border-left-primary shadow h-100 py-4 text-center mode-card">
       <div class="card-body">
         <h5 class="card-title text-primary">Vegetables</h5>
-        <button id="vegBtn" class="btn btn-outline-primary mt-3">Select</button>
+        <button id="vegBtn" class="btn btn-outline-dark mt-3">Select</button>
       </div>
     </div>
   </div>
 
   <!-- Cheese Mode Card -->
   <div class="col-md-3 mb-3">
-    <div class="card mode-card border-left-success shadow h-100 py-4 text-center">
+    <div id="cheeseCard" class="card border-left-success shadow h-100 py-4 text-center mode-card">
       <div class="card-body">
         <h5 class="card-title text-success">Cheese</h5>
-        <button id="cheeseBtn" class="btn btn-outline-success mt-3">Select</button>
+        <button id="cheeseBtn" class="btn btn-outline-dark mt-3">Select</button>
       </div>
     </div>
   </div>
 </div>
+
 
 </div>
 
@@ -284,45 +284,48 @@ document.getElementById('setTempBtn').addEventListener('click', async () => {
 });
 
 
-   const buttons = {
+//This area is for buttons for meat veg cheese 
+    const cards = {
+  meat: document.getElementById("meatCard"),
+  veg: document.getElementById("vegCard"),
+  cheese: document.getElementById("cheeseCard")
+};
+
+const buttons = {
   meat: document.getElementById("meatBtn"),
   veg: document.getElementById("vegBtn"),
   cheese: document.getElementById("cheeseBtn")
 };
 
+const presets = {
+  meat: { temp: 2, humidity: 80, color: '#f8d7da' },      // light red
+  veg: { temp: 6, humidity: 90, color: '#d1ecf1' },       // light blue
+  cheese: { temp: 10, humidity: 75, color: '#d4edda' }    // light green
+};
+
 let activeMode = null;
 
 function setMode(mode) {
-  // Example preset values
-  const presets = {
-    meat: { temp: 2, humidity: 80 },
-    veg: { temp: 6, humidity: 90 },
-    cheese: { temp: 10, humidity: 75 }
-  };
-
-  // Update display (optional)
+  // Update target display
   document.getElementById("targetTemp").textContent = presets[mode].temp;
   document.getElementById("targetHumidity").textContent = presets[mode].humidity;
 
-  // Highlight active button/card
-  Object.keys(buttons).forEach(key => {
-    if (key === mode) {
-      buttons[key].classList.remove("btn-outline-danger","btn-outline-primary","btn-outline-success");
-      buttons[key].classList.add("btn", "btn-primary");
-    } else {
-      buttons[key].classList.remove("btn", "btn-primary");
-      if (key === "meat") buttons[key].classList.add("btn-outline-danger");
-      if (key === "veg") buttons[key].classList.add("btn-outline-primary");
-      if (key === "cheese") buttons[key].classList.add("btn-outline-success");
-    }
+  // Reset all card backgrounds
+  Object.keys(cards).forEach(key => {
+    cards[key].style.backgroundColor = "";
   });
 
-  // TODO: send new settings to Firebase / ESP32
+  // Highlight selected card
+  cards[mode].style.backgroundColor = presets[mode].color;
+
+  activeMode = mode;
+
+  // TODO: Update Firebase with new settings
   // firebase.database().ref('/fridge/targetTemp').set(presets[mode].temp);
   // firebase.database().ref('/fridge/targetHumidity').set(presets[mode].humidity);
 }
 
-// Event listeners
+// Add event listeners
 buttons.meat.addEventListener("click", () => setMode("meat"));
 buttons.veg.addEventListener("click", () => setMode("veg"));
 buttons.cheese.addEventListener("click", () => setMode("cheese"));

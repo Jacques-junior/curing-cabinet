@@ -285,7 +285,7 @@ document.getElementById('setTempBtn').addEventListener('click', async () => {
 
 
 //This area is for buttons for meat veg cheese 
-   const cards = {
+  const cards = {
   meat: document.getElementById("meatCard"),
   veg: document.getElementById("vegCard"),
   cheese: document.getElementById("cheeseCard")
@@ -297,19 +297,21 @@ const buttons = {
   cheese: document.getElementById("cheeseBtn")
 };
 
+// Preset modes with their colors
 const presets = {
-  meat: { temp: 2, humidity: 80, color: '#f8d7da' },      // light red
-  veg: { temp: 6, humidity: 90, color: '#d1ecf1' },       // light blue
-  cheese: { temp: 10, humidity: 75, color: '#d4edda' }    // light green
+  meat: { temp: 2, humidity: 80, color: '#f8d7da' },
+  veg: { temp: 6, humidity: 90, color: '#d1ecf1' },
+  cheese: { temp: 10, humidity: 75, color: '#d4edda' }
 };
 
 let activeMode = null;
 
+// Function to highlight a mode and update Firebase
 function setMode(mode) {
   const temp = presets[mode].temp;
   const humidity = presets[mode].humidity;
 
-  // Update target display on page
+  // Update target display
   document.getElementById("targetTemp").textContent = temp;
   document.getElementById("targetHumidity").textContent = humidity;
 
@@ -323,19 +325,34 @@ function setMode(mode) {
   activeMode = mode;
 
   // Update Firebase
-  firebase.database().ref('/fridge/targetTemp').set(temp)
-    .then(() => console.log(`targetTemp updated to ${temp}°C`))
-    .catch(err => console.error('Error updating targetTemp:', err));
-
-  firebase.database().ref('/fridge/targetHumidity').set(humidity)
-    .then(() => console.log(`targetHumidity updated to ${humidity}%`))
-    .catch(err => console.error('Error updating targetHumidity:', err));
+  firebase.database().ref('/fridge/targetTemp').set(temp);
+  firebase.database().ref('/fridge/targetHumidity').set(humidity);
 }
 
-// Add event listeners
+// Event listeners
 buttons.meat.addEventListener("click", () => setMode("meat"));
 buttons.veg.addEventListener("click", () => setMode("veg"));
 buttons.cheese.addEventListener("click", () => setMode("cheese"));
+
+// ✅ On page load: read current target temp and humidity
+firebase.database().ref('/fridge/targetTemp').once("value").then(snapshot => {
+  const currentTemp = snapshot.val();
+  firebase.database().ref('/fridge/targetHumidity').once("value").then(hSnapshot => {
+    const currentHumidity = hSnapshot.val();
+
+    document.getElementById("targetTemp").textContent = currentTemp;
+    document.getElementById("targetHumidity").textContent = currentHumidity;
+
+    // Find matching mode
+    for (let mode in presets) {
+      if (presets[mode].temp === currentTemp && presets[mode].humidity === currentHumidity) {
+        setMode(mode); // highlight correct card without updating Firebase again
+        break;
+      }
+    }
+  });
+});
+
 
 
 //     document.getElementById('increaseTemp').addEventListener('click', async () => {

@@ -284,38 +284,49 @@ document.getElementById('setTempBtn').addEventListener('click', async () => {
 });
 
 
-    const modes = {
+   const buttons = {
+  meat: document.getElementById("meatBtn"),
+  veg: document.getElementById("vegBtn"),
+  cheese: document.getElementById("cheeseBtn")
+};
+
+let activeMode = null;
+
+function setMode(mode) {
+  // Example preset values
+  const presets = {
     meat: { temp: 2, humidity: 80 },
     veg: { temp: 6, humidity: 90 },
     cheese: { temp: 10, humidity: 75 }
   };
 
-  // UI elements
-  const targetTemp = document.getElementById("targetTemp");
-  const targetHumidity = document.getElementById("targetHumidity");
-  const buttons = document.querySelectorAll(".mode-btn");
+  // Update display (optional)
+  document.getElementById("targetTemp").textContent = presets[mode].temp;
+  document.getElementById("targetHumidity").textContent = presets[mode].humidity;
 
-  function setMode(mode, btn) {
-    // Update display
-    targetTemp.textContent = modes[mode].temp;
-    targetHumidity.textContent = modes[mode].humidity;
+  // Highlight active button/card
+  Object.keys(buttons).forEach(key => {
+    if (key === mode) {
+      buttons[key].classList.remove("btn-outline-danger","btn-outline-primary","btn-outline-success");
+      buttons[key].classList.add("btn", "btn-primary");
+    } else {
+      buttons[key].classList.remove("btn", "btn-primary");
+      if (key === "meat") buttons[key].classList.add("btn-outline-danger");
+      if (key === "veg") buttons[key].classList.add("btn-outline-primary");
+      if (key === "cheese") buttons[key].classList.add("btn-outline-success");
+    }
+  });
 
-    // Reset all buttons
-    buttons.forEach(b => b.classList.remove("bg-blue-500", "text-white"));
-    buttons.forEach(b => b.classList.add("bg-gray-200", "text-black"));
+  // TODO: send new settings to Firebase / ESP32
+  // firebase.database().ref('/fridge/targetTemp').set(presets[mode].temp);
+  // firebase.database().ref('/fridge/targetHumidity').set(presets[mode].humidity);
+}
 
-    // Highlight active button
-    btn.classList.remove("bg-gray-200", "text-black");
-    btn.classList.add("bg-blue-500", "text-white");
+// Event listeners
+buttons.meat.addEventListener("click", () => setMode("meat"));
+buttons.veg.addEventListener("click", () => setMode("veg"));
+buttons.cheese.addEventListener("click", () => setMode("cheese"));
 
-    // TODO: send mode data to backend (ESP32)
-    // fetch(`/setMode?temp=${modes[mode].temp}&humidity=${modes[mode].humidity}`)
-  }
-
-  // Event listeners
-  document.getElementById("meatBtn").addEventListener("click", (e) => setMode("meat", e.target));
-  document.getElementById("vegBtn").addEventListener("click", (e) => setMode("veg", e.target));
-  document.getElementById("cheeseBtn").addEventListener("click", (e) => setMode("cheese", e.target));
 
 //     document.getElementById('increaseTemp').addEventListener('click', async () => {
 //   const targetTempRef = firebase.database().ref('/fridge/targetTemp');

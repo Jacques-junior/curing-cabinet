@@ -76,6 +76,33 @@
       </div>
     </div>
   </div>
+
+<div class="flex justify-center space-x-4 mt-6">
+  <!-- Mode Buttons -->
+  <button id="meatBtn" 
+    class="mode-btn bg-gray-200 text-black px-4 py-2 rounded-lg shadow-md">
+    Meat
+  </button>
+  <button id="vegBtn" 
+    class="mode-btn bg-gray-200 text-black px-4 py-2 rounded-lg shadow-md">
+    Vegetables
+  </button>
+  <button id="cheeseBtn" 
+    class="mode-btn bg-gray-200 text-black px-4 py-2 rounded-lg shadow-md">
+    Cheese
+  </button>
+</div>
+
+<!-- Show current target settings -->
+<div class="text-center mt-4">
+  <p class="text-lg font-semibold">Target Temperature: 
+    <span id="targetTemp">--</span> °C
+  </p>
+  <p class="text-lg font-semibold">Target Humidity: 
+    <span id="targetHumidity">--</span> %
+  </p>
+</div>
+   
 </div>
 
   <!--button id="increaseTemp" class="btn btn-secondary">Increase Target Temp by 1°C</button-->
@@ -237,6 +264,39 @@ document.getElementById('setTempBtn').addEventListener('click', async () => {
   }
 });
 
+
+    const modes = {
+    meat: { temp: 2, humidity: 80 },
+    veg: { temp: 6, humidity: 90 },
+    cheese: { temp: 10, humidity: 75 }
+  };
+
+  // UI elements
+  const targetTemp = document.getElementById("targetTemp");
+  const targetHumidity = document.getElementById("targetHumidity");
+  const buttons = document.querySelectorAll(".mode-btn");
+
+  function setMode(mode, btn) {
+    // Update display
+    targetTemp.textContent = modes[mode].temp;
+    targetHumidity.textContent = modes[mode].humidity;
+
+    // Reset all buttons
+    buttons.forEach(b => b.classList.remove("bg-blue-500", "text-white"));
+    buttons.forEach(b => b.classList.add("bg-gray-200", "text-black"));
+
+    // Highlight active button
+    btn.classList.remove("bg-gray-200", "text-black");
+    btn.classList.add("bg-blue-500", "text-white");
+
+    // TODO: send mode data to backend (ESP32)
+    // fetch(`/setMode?temp=${modes[mode].temp}&humidity=${modes[mode].humidity}`)
+  }
+
+  // Event listeners
+  document.getElementById("meatBtn").addEventListener("click", (e) => setMode("meat", e.target));
+  document.getElementById("vegBtn").addEventListener("click", (e) => setMode("veg", e.target));
+  document.getElementById("cheeseBtn").addEventListener("click", (e) => setMode("cheese", e.target));
 
 //     document.getElementById('increaseTemp').addEventListener('click', async () => {
 //   const targetTempRef = firebase.database().ref('/fridge/targetTemp');

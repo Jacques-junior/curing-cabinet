@@ -230,6 +230,13 @@ document.getElementById('setTempBtn').addEventListener('click', async () => {
   //inputField.value = ""; // clear input after setting
 });
 
+    firebase.database().ref("/fridge/targetTemp").on("value", (snapshot) => {
+  if (snapshot.exists()) {
+    const target = snapshot.val();
+    document.getElementById("targetTemp").textContent = target.toFixed(1) + " °C";
+  }
+});
+
 
 //     document.getElementById('increaseTemp').addEventListener('click', async () => {
 //   const targetTempRef = firebase.database().ref('/fridge/targetTemp');

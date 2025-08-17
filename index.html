@@ -61,7 +61,11 @@
     </div>
   </div>
 
-  <button id="increaseTemp" class="btn btn-secondary">Increase Target Temp by 1°C</button>
+  <!--button id="increaseTemp" class="btn btn-secondary">Increase Target Temp by 1°C</button-->
+<div class="input-group mt-3" style="max-width: 300px;">
+  <input type="number" id="setTempInput" class="form-control" placeholder="Enter target °C">
+  <button id="setTempBtn" class="btn btn-primary">Set Target Temp</button>
+</div>
 
 
   <script>
@@ -196,23 +200,38 @@ firebase.database().ref("/fridge/humidity").on("value", (humiditySnapshot) => {
   updateChartIfReady();
 });
 
+document.getElementById('setTempBtn').addEventListener('click', async () => {
+  const inputField = document.getElementById('setTempInput');
+  const newTarget = parseFloat(inputField.value);
 
+  if (isNaN(newTarget)) {
+    alert("❌ Please enter a valid number.");
+    return;
+  }
 
-    document.getElementById('increaseTemp').addEventListener('click', async () => {
   const targetTempRef = firebase.database().ref('/fridge/targetTemp');
+  await targetTempRef.set(newTarget);
 
-  // Get current target temp
-  const snapshot = await targetTempRef.get();
-  let currentTarget = snapshot.exists() ? snapshot.val() : 5.0;
-
-  // Increase by 1 degree
-  currentTarget += 1;
-
-  // Write new target temp back to Firebase
-  await targetTempRef.set(currentTarget);
-
-  alert('Target temperature increased to ' + currentTarget + '°C');
+  alert('✅ Target temperature set to ' + newTarget + '°C');
+  inputField.value = ""; // clear input after setting
 });
+
+
+//     document.getElementById('increaseTemp').addEventListener('click', async () => {
+//   const targetTempRef = firebase.database().ref('/fridge/targetTemp');
+
+//   // Get current target temp
+//   const snapshot = await targetTempRef.get();
+//   let currentTarget = snapshot.exists() ? snapshot.val() : 5.0;
+
+//   // Increase by 1 degree
+//   currentTarget += 1;
+
+//   // Write new target temp back to Firebase
+//   await targetTempRef.set(currentTarget);
+
+//   alert('Target temperature increased to ' + currentTarget + '°C');
+// });
 
   </script>
 

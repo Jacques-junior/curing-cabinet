@@ -285,7 +285,7 @@ document.getElementById('setTempBtn').addEventListener('click', async () => {
 
 
 //This area is for buttons for meat veg cheese 
-    const cards = {
+   const cards = {
   meat: document.getElementById("meatCard"),
   veg: document.getElementById("vegCard"),
   cheese: document.getElementById("cheeseCard")
@@ -306,9 +306,12 @@ const presets = {
 let activeMode = null;
 
 function setMode(mode) {
-  // Update target display
-  document.getElementById("targetTemp").textContent = presets[mode].temp;
-  document.getElementById("targetHumidity").textContent = presets[mode].humidity;
+  const temp = presets[mode].temp;
+  const humidity = presets[mode].humidity;
+
+  // Update target display on page
+  document.getElementById("targetTemp").textContent = temp;
+  document.getElementById("targetHumidity").textContent = humidity;
 
   // Reset all card backgrounds
   Object.keys(cards).forEach(key => {
@@ -317,12 +320,16 @@ function setMode(mode) {
 
   // Highlight selected card
   cards[mode].style.backgroundColor = presets[mode].color;
-
   activeMode = mode;
 
-  // TODO: Update Firebase with new settings
-  // firebase.database().ref('/fridge/targetTemp').set(presets[mode].temp);
-  // firebase.database().ref('/fridge/targetHumidity').set(presets[mode].humidity);
+  // Update Firebase
+  firebase.database().ref('/fridge/targetTemp').set(temp)
+    .then(() => console.log(`targetTemp updated to ${temp}°C`))
+    .catch(err => console.error('Error updating targetTemp:', err));
+
+  firebase.database().ref('/fridge/targetHumidity').set(humidity)
+    .then(() => console.log(`targetHumidity updated to ${humidity}%`))
+    .catch(err => console.error('Error updating targetHumidity:', err));
 }
 
 // Add event listeners

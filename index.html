@@ -173,15 +173,19 @@
 
     // Listen for Firebase updates
     firebase.database().ref("/fridge/temp").on("value", (tempSnapshot) => {
-      const temp = tempSnapshot.val();
-      document.getElementById("temp").textContent = temp.toFixed(1) + " °C";
+  const temp = tempSnapshot.val();
+  document.getElementById("temp").textContent = temp.toFixed(1) + " °C";
+});
 
-      firebase.database().ref("/fridge/humidity").once("value").then(humiditySnapshot => {
-        const humidity = humiditySnapshot.val();
-        document.getElementById("humidity").textContent = humidity.toFixed(1) + " %";
-        addData(temp, humidity);
-      });
-    });
+firebase.database().ref("/fridge/humidity").on("value", (humiditySnapshot) => {
+  const humidity = humiditySnapshot.val();
+  document.getElementById("humidity").textContent = humidity.toFixed(1) + " %";
+
+  // Add both to chart if both are available
+  const temp = parseFloat(document.getElementById("temp").textContent); 
+  if (!isNaN(temp)) addData(temp, humidity);
+});
+
 
     document.getElementById('increaseTemp').addEventListener('click', async () => {
   const targetTempRef = firebase.database().ref('/fridge/targetTemp');

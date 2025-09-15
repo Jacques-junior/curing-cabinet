@@ -109,6 +109,36 @@
   </div>
 </div>
 
+     <!-- Device Control Buttons -->
+  <div class="row justify-content-center mb-4">
+    <div class="col-md-3 mb-3">
+      <div class="card shadow h-100 py-4 text-center">
+        <div class="card-body">
+          <h5 class="card-title text-dark">Fridge</h5>
+          <button id="fridgeBtn" class="btn btn-success">Turn On</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+      <div class="card shadow h-100 py-4 text-center">
+        <div class="card-body">
+          <h5 class="card-title text-dark">Humidifier</h5>
+          <button id="humidifierBtn" class="btn btn-success">Turn On</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+      <div class="card shadow h-100 py-4 text-center">
+        <div class="card-body">
+          <h5 class="card-title text-dark">Dehumidifier</h5>
+          <button id="dehumidifierBtn" class="btn btn-success">Turn On</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
 </div>
 
@@ -306,6 +336,34 @@ const presets = {
 
 let activeMode = null;
 
+// Device control button logic
+function setupToggleButton(buttonId, firebasePath) {
+  const button = document.getElementById(buttonId);
+  let state = false; // local state
+
+  // Read initial state from Firebase
+  firebase.database().ref(firebasePath).on("value", snapshot => {
+    if (snapshot.exists()) {
+      state = snapshot.val();
+      button.textContent = state ? "Turn Off" : "Turn On";
+      button.classList.toggle("btn-success", !state);
+      button.classList.toggle("btn-danger", state);
+    }
+  });
+
+  // Toggle on click
+  button.addEventListener("click", () => {
+    state = !state;
+    firebase.database().ref(firebasePath).set(state);
+  });
+}
+
+// Attach the three buttons
+setupToggleButton("fridgeBtn", "/fridge/Fridgeon");
+setupToggleButton("humidifierBtn", "/fridge/Humidifieron");
+setupToggleButton("dehumidifierBtn", "/fridge/Dehumidifieron");
+
+    
 // Function to highlight a mode and update Firebase
 function setMode(mode) {
   const temp = presets[mode].temp;

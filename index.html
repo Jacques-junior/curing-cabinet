@@ -59,6 +59,22 @@
     </div>
   </div>
 
+   <!-- Historical Chart -->
+<div class="card shadow mb-4">
+  <div class="card-header py-3 d-flex justify-content-between align-items-center">
+    <h6 class="m-0 font-weight-bold text-primary">Historical Data</h6>
+    <div>
+      <button class="btn btn-sm btn-outline-primary me-1" onclick="loadHistory('24h')">Last 24h</button>
+      <button class="btn btn-sm btn-outline-primary me-1" onclick="loadHistory('7d')">Last 7 days</button>
+      <button class="btn btn-sm btn-outline-primary" onclick="loadHistory('30d')">Last Month</button>
+    </div>
+  </div>
+  <div class="card-body">
+    <canvas id="historyChart" width="600" height="300"></canvas>
+  </div>
+</div>
+
+
   <!-- Target Temperature Card -->
   <div class="row justify-content-center mb-4">
     <div class="col-md-6">
@@ -410,6 +426,92 @@ firebase.database().ref('/fridge/targetTemp').once("value").then(snapshot => {
     }
   });
 });
+
+    // Historical chart setup
+const historyCtx = document.getElementById('historyChart').getContext('2d');
+const historyChart = new Chart(historyCtx, {
+  type: 'line',
+  data: {
+    labels: [],
+    datasets: [
+      {
+        label: 'Temperature (°C)',
+        data: [],
+        borderColor: '#e74a3b',
+        backgroundColor: 'rgba(231, 74, 59, 0.2)',
+        fill: true,
+        tension: 0.3,
+        yAxisID: 'y'
+      },
+      {
+        label: 'Humidity (%)',
+        data: [],
+        borderColor: '#4e73df',
+        backgroundColor: 'rgba(78, 115, 223, 0.2)',
+        fill: true,
+        tension: 0.3,
+        yAxisID: 'y1'
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    interaction: { mode: 'index', intersect: false },
+    stacked: false,
+    scales: {
+      y: {
+        type: 'linear',
+        position: 'left',
+        title: { display: true, text: 'Temperature (°C)' }
+      },
+      y1: {
+        type: 'linear',
+        position: 'right',
+        title: { display: true, text: 'Humidity (%)' },
+        grid: { drawOnChartArea: false }
+      },
+      x: {
+        title: { display: true, text: 'Time' }
+      }
+    }
+  }
+});
+
+// Load historical data
+function loadHistory(range) {
+  const now = new Date();
+  let startTime = new Date();
+
+  if (range === '24h') {
+    startTime.setDate(now.getDate() - 1);
+  } else if (range === '7d') {
+    startTime.setDate(now.getDate() - 7);
+  } else if (range === '30d') {
+    startTime.setMonth(now.getMonth() - 1);
+  }
+
+  const readingsRef = firebase.database().ref("readings");
+  readingsRef.orderByChild("timestamp").startAt(startTime.toISOString()).once("value", snapshot => {
+    const data = snapshot.val();
+    const labels = [];
+    const temps = [];
+    const hums = [];
+
+    for (let key in data) {
+      labels.push(new Date(data[key].timestamp).toLocaleString());
+      temps.push(data[key].temperature);
+      hums.push(data[key].humidity);
+    }
+
+    historyChart.data.labels = labels;
+    historyChart.data.datasets[0].data = temps;
+    historyChart.data.datasets[1].data = hums;
+    historyChart.update();
+  });
+}
+
+// Load last 24h on startup
+loadHistory('24h');
 
 
 

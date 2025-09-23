@@ -462,12 +462,16 @@ const historyChart = new Chart(historyCtx, {
       y: {
         type: 'linear',
         position: 'left',
-        title: { display: true, text: 'Temperature (°C)' }
+        title: { display: true, text: 'Temperature (°C)' },
+        min:0,
+        max: 40
       },
       y1: {
         type: 'linear',
         position: 'right',
         title: { display: true, text: 'Humidity (%)' },
+        min: 0,
+        max: 100,
         grid: { drawOnChartArea: false }
       },
       x: {

@@ -179,10 +179,10 @@
 <!-- Show current target settings -->
 <div class="text-center mt-4">
   <p class="text-lg font-semibold">Target Temperature: 
-    <span id="targetTemp">--</span> °C
+    <span id="targetTemp1">--</span> °C
   </p>
   <p class="text-lg font-semibold">Target Humidity: 
-    <span id="targetHumidity">--</span> %
+    <span id="targetHumidity1">--</span> %
   </p>
 </div>
    
@@ -329,6 +329,10 @@ document.getElementById('setTempBtn').addEventListener('click', async () => {
   const inputField = document.getElementById('setTempInput');
   const newTarget = parseFloat(inputField.value);
 
+
+  // Update target display
+  document.getElementById("targetTemp1").textContent = newTarget;
+
   if (isNaN(newTarget)) {
     alert("❌ Please enter a valid number.");
     return;
@@ -353,6 +357,8 @@ document.getElementById('setHumBtn').addEventListener('click', async () => {
   const inputFieldH = document.getElementById('setHumInput');
   const newTargetH = parseFloat(inputFieldH.value);
 
+   document.getElementById("targetHum1").textContent = newTargetH;
+  
   if (isNaN(newTargetH)) {
     alert("❌ Please enter a valid number.");
     return;
@@ -429,8 +435,8 @@ function setMode(mode) {
   const humidity = presets[mode].humidity;
 
   // Update target display
-  document.getElementById("targetTemp").textContent = temp;
-  document.getElementById("targetHumidity").textContent = humidity;
+  document.getElementById("targetTemp1").textContent = temp;
+  document.getElementById("targetHumidity1).textContent = humidity;
 
   // Reset all card backgrounds
   Object.keys(cards).forEach(key => {

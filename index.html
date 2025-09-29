@@ -93,6 +93,24 @@
     </div>
   </div>
 
+     <!-- Target humidity Card -->
+  <div class="row justify-content-center mb-4">
+    <div class="col-md-6">
+      <div class="card border-left-success shadow h-100 py-4">
+        <div class="card-body text-center">
+          <h5 class="card-title text-success">Target Humidity</h5>
+          <p class="card-text display-5" id="targetHumidity">-- %</p>
+
+          <!-- Input + Button -->
+          <div class="input-group mt-3" style="max-width: 300px; margin: 0 auto;">
+            <input type="number" id="setHumInput" class="form-control" placeholder="Enter target %">
+            <button id="setHumBtn" class="btn btn-primary">Set</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="row justify-content-center mb-4">
   <!-- Meat Mode Card -->
   <div class="col-md-3 mb-3">
@@ -306,6 +324,7 @@ firebase.database().ref("/fridge/humidity").on("value", (humiditySnapshot) => {
   updateChartIfReady();
 });
 
+    // this is for entering target temperature 
 document.getElementById('setTempBtn').addEventListener('click', async () => {
   const inputField = document.getElementById('setTempInput');
   const newTarget = parseFloat(inputField.value);
@@ -320,12 +339,36 @@ document.getElementById('setTempBtn').addEventListener('click', async () => {
 
   alert('✅ Target temperature set to ' + newTarget + '°C');
   //inputField.value = ""; // clear input after setting
-});
+}); 
 
     firebase.database().ref("/fridge/targetTemp").on("value", (snapshot) => {
   if (snapshot.exists()) {
     const target = snapshot.val();
     document.getElementById("targetTemp").textContent = target.toFixed(1) + " °C";
+  }
+});
+
+    //this is for entering target humidity
+document.getElementById('setHumBtn').addEventListener('click', async () => {
+  const inputFieldH = document.getElementById('setHumInput');
+  const newTargetH = parseFloat(inputFieldH.value);
+
+  if (isNaN(newTargetH)) {
+    alert("❌ Please enter a valid number.");
+    return;
+  }
+
+  const targetHumRef = firebase.database().ref('/fridge/targetHumidity');
+  await targetHumRef.set(newTargetH);
+
+  alert('✅ Target Humidity set to ' + newTargetH + '%');
+  //inputFieldH.value = ""; // clear input after setting
+});
+
+     firebase.database().ref("/fridge/targetHumidity").on("value", (snapshot) => {
+  if (snapshot.exists()) {
+    const target = snapshot.val();
+    document.getElementById("targetHumidity").textContent = target.toFixed(1) + " %";
   }
 });
 

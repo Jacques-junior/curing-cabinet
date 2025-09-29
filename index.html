@@ -329,10 +329,6 @@ document.getElementById('setTempBtn').addEventListener('click', async () => {
   const inputField = document.getElementById('setTempInput');
   const newTarget = parseFloat(inputField.value);
 
-
-  // Update target display
-  document.getElementById("targetTemp1").textContent = newTarget;
-
   if (isNaN(newTarget)) {
     alert("❌ Please enter a valid number.");
     return;
@@ -356,8 +352,6 @@ document.getElementById('setTempBtn').addEventListener('click', async () => {
 document.getElementById('setHumBtn').addEventListener('click', async () => {
   const inputFieldH = document.getElementById('setHumInput');
   const newTargetH = parseFloat(inputFieldH.value);
-
-   document.getElementById("targetHum1").textContent = newTargetH;
   
   if (isNaN(newTargetH)) {
     alert("❌ Please enter a valid number.");

@@ -4,13 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Fridge Monitor Dashboard</title>
-  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <!-- SB Admin 2 Fonts & Icons -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Firebase compat -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <style>
@@ -28,7 +24,7 @@
  <div class="container">
   <h1 class="mb-4 text-primary">Fridge Monitor Dashboard</h1>
 
-  <!-- Temperature + Humidity cards -->
+  <!-- Temperature and Humidity cards -->
   <div class="row mb-4">
     <div class="col-md-6 mb-3">
       <div class="card border-left-danger shadow h-100 py-2">
@@ -49,7 +45,7 @@
     </div>
   </div>
 
-  <!-- Chart -->
+  <!-- normal Chart -->
   <div class="card shadow mb-4">
     <div class="card-header py-3">
       <h6 class="m-0 font-weight-bold text-primary">Temperature & Humidity Over Time</h6>
@@ -59,7 +55,7 @@
     </div>
   </div>
 
-   <!-- Historical Chart -->
+   <!-- Historical datas Chart -->
 <div class="card shadow mb-4">
   <div class="card-header py-3 d-flex justify-content-between align-items-center">
     <h6 class="m-0 font-weight-bold text-primary">Historical Data</h6>
@@ -75,7 +71,7 @@
 </div>
 
 
-  <!-- Target Temperature Card -->
+  <!-- card for the Target Temperature  -->
   <div class="row justify-content-center mb-4">
     <div class="col-md-6">
       <div class="card border-left-success shadow h-100 py-4">
@@ -83,7 +79,7 @@
           <h5 class="card-title text-success">Target Temperature</h5>
           <p class="card-text display-5" id="targetTemp">-- °C</p>
 
-          <!-- Input + Button -->
+          <!-- This handles the Input  to the Button -->
           <div class="input-group mt-3" style="max-width: 300px; margin: 0 auto;">
             <input type="number" id="setTempInput" class="form-control" placeholder="Enter target °C">
             <button id="setTempBtn" class="btn btn-primary">Set</button>
@@ -93,7 +89,7 @@
     </div>
   </div>
 
-     <!-- Target humidity Card -->
+     <!-- card for the humidity Temperature-->
   <div class="row justify-content-center mb-4">
     <div class="col-md-6">
       <div class="card border-left-success shadow h-100 py-4">
@@ -101,7 +97,7 @@
           <h5 class="card-title text-success">Target Humidity</h5>
           <p class="card-text display-5" id="targetHumidity">-- %</p>
 
-          <!-- Input + Button -->
+          <!-- his handles the Input  to the Button for humidity -->
           <div class="input-group mt-3" style="max-width: 300px; margin: 0 auto;">
             <input type="number" id="setHumInput" class="form-control" placeholder="Enter target %">
             <button id="setHumBtn" class="btn btn-primary">Set</button>
@@ -112,7 +108,7 @@
   </div>
 
   <div class="row justify-content-center mb-4">
-  <!-- Meat Mode Card -->
+  <!-- Meat preset Card -->
   <div class="col-md-3 mb-3">
     <div id="meatCard" class="card border-left-danger shadow h-100 py-4 text-center mode-card">
       <div class="card-body">
@@ -122,7 +118,7 @@
     </div>
   </div>
 
-  <!-- Vegetables Mode Card -->
+  <!-- Vegetables preset Card -->
   <div class="col-md-3 mb-3">
     <div id="vegCard" class="card border-left-primary shadow h-100 py-4 text-center mode-card">
       <div class="card-body">
@@ -132,7 +128,7 @@
     </div>
   </div>
 
-  <!-- Cheese Mode Card -->
+  <!-- Cheese preset Card -->
   <div class="col-md-3 mb-3">
     <div id="cheeseCard" class="card border-left-success shadow h-100 py-4 text-center mode-card">
       <div class="card-body">
@@ -143,7 +139,7 @@
   </div>
 </div>
 
-     <!-- Device Control Buttons -->
+     <!-- buttons for fridge,humidifier, dehumidifier  -->
   <div class="row justify-content-center mb-4">
     <div class="col-md-3 mb-3">
       <div class="card shadow h-100 py-4 text-center">
@@ -188,10 +184,6 @@
    
 </div>
 
-  <!--button id="increaseTemp" class="btn btn-secondary">Increase Target Temp by 1°C</button-->
-
-
-
   <script>
     // Firebase config
     const firebaseConfig = {
@@ -205,16 +197,13 @@
       measurementId: "G-2S42TL5BFH"
     };
 
-    // Initialize Firebase
     const app = firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
-
-    // Chart data arrays
     const tempData = [];
     const humidityData = [];
     const labels = [];
 
-    // Setup Chart.js chart
+    // this Setup for Chart.js chart
     const ctx = document.getElementById('fridgeChart').getContext('2d');
     const fridgeChart = new Chart(ctx, {
       type: 'line',
@@ -298,37 +287,34 @@
 
       fridgeChart.update();
     }
-
-    // Listen for Firebase updates
     let latestTemp = null;
 let latestHumidity = null;
 
-// Function to update chart when both values exist
+// update chart when humidi and temp change
 function updateChartIfReady() {
   if (latestTemp !== null && latestHumidity !== null) {
     addData(latestTemp, latestHumidity);
   }
 }
 
-// Listen for temp updates
+// temp updates
 firebase.database().ref("/fridge/temp").on("value", (tempSnapshot) => {
   latestTemp = tempSnapshot.val();
   document.getElementById("temp").textContent = latestTemp.toFixed(1) + " °C";
   updateChartIfReady();
 });
 
-// Listen for humidity updates
+// humidy updates
 firebase.database().ref("/fridge/humidity").on("value", (humiditySnapshot) => {
   latestHumidity = humiditySnapshot.val();
   document.getElementById("humidity").textContent = latestHumidity.toFixed(1) + " %";
   updateChartIfReady();
 });
 
-    // this is for entering target temperature 
+// this is for entering target temperature 
 document.getElementById('setTempBtn').addEventListener('click', async () => {
   const inputField = document.getElementById('setTempInput');
   const newTarget = parseFloat(inputField.value);
-
   if (isNaN(newTarget)) {
     alert("❌ Please enter a valid number.");
     return;
@@ -338,9 +324,7 @@ document.getElementById('setTempBtn').addEventListener('click', async () => {
   await targetTempRef.set(newTarget);
 
   alert('✅ Target temperature set to ' + newTarget + '°C');
-  //inputField.value = ""; // clear input after setting
 }); 
-
     firebase.database().ref("/fridge/targetTemp").on("value", (snapshot) => {
   if (snapshot.exists()) {
     const target = snapshot.val();
@@ -348,11 +332,10 @@ document.getElementById('setTempBtn').addEventListener('click', async () => {
   }
 });
 
-    //this is for entering target humidity
+//this is for entering target humidity
 document.getElementById('setHumBtn').addEventListener('click', async () => {
   const inputFieldH = document.getElementById('setHumInput');
   const newTargetH = parseFloat(inputFieldH.value);
-
   if (isNaN(newTargetH)) {
     alert("❌ Please enter a valid number.");
     return;
@@ -360,18 +343,14 @@ document.getElementById('setHumBtn').addEventListener('click', async () => {
 
   const targetHumRef = firebase.database().ref('/fridge/targetHumidity');
   await targetHumRef.set(newTargetH);
-
   alert('✅ Target Humidity set to ' + newTargetH + '%');
-  //inputFieldH.value = ""; // clear input after setting
 });
-
      firebase.database().ref("/fridge/targetHumidity").on("value", (snapshot) => {
   if (snapshot.exists()) {
     const target = snapshot.val();
     document.getElementById("targetHumidity").textContent = target.toFixed(1) + " %";
   }
 });
-
 
 //This area is for buttons for meat veg cheese 
   const cards = {
@@ -400,7 +379,7 @@ function setupToggleButton(buttonId, firebasePath) {
   const button = document.getElementById(buttonId);
   let state = false; // local state
 
-  // Read initial state from Firebase
+  // Read initial state from Firebase to reatart the system when needed
   firebase.database().ref(firebasePath).on("value", snapshot => {
     if (snapshot.exists()) {
       state = snapshot.val();
@@ -446,12 +425,12 @@ function setMode(mode) {
   firebase.database().ref('/fridge/targetHumidity').set(humidity);
 }
 
-// Event listeners
+//listen for changes on button
 buttons.meat.addEventListener("click", () => setMode("meat"));
 buttons.veg.addEventListener("click", () => setMode("veg"));
 buttons.cheese.addEventListener("click", () => setMode("cheese"));
 
-// ✅ On page load: read current target temp and humidity
+// read current target temp and humidity when the page loads up
 firebase.database().ref('/fridge/targetTemp').once("value").then(snapshot => {
   const currentTemp = snapshot.val();
   firebase.database().ref('/fridge/targetHumidity').once("value").then(hSnapshot => {
@@ -459,11 +438,9 @@ firebase.database().ref('/fridge/targetTemp').once("value").then(snapshot => {
 
     document.getElementById("targetTemp").textContent = currentTemp;
     document.getElementById("targetHumidity").textContent = currentHumidity;
-
-    // Find matching mode
     for (let mode in presets) {
       if (presets[mode].temp === currentTemp && presets[mode].humidity === currentHumidity) {
-        setMode(mode); // highlight correct card without updating Firebase again
+        setMode(mode);
         break;
       }
     }
@@ -556,31 +533,8 @@ function loadHistory(range) {
     historyChart.update();
   });
 }
-
-// Load last 24h on startup
 loadHistory('24h');
-
-
-
-//     document.getElementById('increaseTemp').addEventListener('click', async () => {
-//   const targetTempRef = firebase.database().ref('/fridge/targetTemp');
-
-//   // Get current target temp
-//   const snapshot = await targetTempRef.get();
-//   let currentTarget = snapshot.exists() ? snapshot.val() : 5.0;
-
-//   // Increase by 1 degree
-//   currentTarget += 1;
-
-//   // Write new target temp back to Firebase
-//   await targetTempRef.set(currentTarget);
-
-//   alert('Target temperature increased to ' + currentTarget + '°C');
-// });
-
   </script>
-
-  <!-- Bootstrap JS bundle (includes Popper) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

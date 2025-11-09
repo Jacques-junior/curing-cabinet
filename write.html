@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fridge Monitor Dashboard</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- SB Admin 2 Fonts & Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Firebase compat -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <style>
+    body {
+      background-color: #f8f9fc;
+      padding: 2rem;
+    }
+    .card {
+      box-shadow: 0 0.15rem 1.75rem 0 rgb(58 59 69 / 15%);
+    }
+  </style>
+</head>
+<body>
+
+ <div class="container">
+  <h1 class="mb-4 text-primary">Fridge Monitor Dashboard</h1>
+
+  <!-- Temperature + Humidity cards -->
+  <div class="row mb-4">
+    <div class="col-md-6 mb-3">
+      <div class="card border-left-danger shadow h-100 py-2">
+        <div class="card-body text-center">
+          <h5 class="card-title text-danger">Temperature</h5>
+          <p class="card-text display-4" id="temp">-- °C</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 mb-3">
+      <div class="card border-left-primary shadow h-100 py-2">
+        <div class="card-body text-center">
+          <h5 class="card-title text-primary">Humidity</h5>
+          <p class="card-text display-4" id="humidity">-- %</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <div class="card shadow mb-4">
+    <div class="card-header py-3">
+      <h6 class="m-0 font-weight-bold text-primary">Temperature & Humidity Over Time</h6>
+    </div>
+    <div class="card-body">
+      <canvas id="fridgeChart" width="600" height="300"></canvas>
+    </div>
+  </div>
+
+   <!-- Historical Chart -->
+<div class="card shadow mb-4">
+  <div class="card-header py-3 d-flex justify-content-between align-items-center">
+    <h6 class="m-0 font-weight-bold text-primary">Historical Data</h6>
+    <div>
+      <button class="btn btn-sm btn-outline-primary me-1" onclick="loadHistory('24h')">Last 24h</button>
+      <button class="btn btn-sm btn-outline-primary me-1" onclick="loadHistory('7d')">Last 7 days</button>
+      <button class="btn btn-sm btn-outline-primary" onclick="loadHistory('30d')">Last Month</button>
+    </div>
+  </div>
+  <div class="card-body">
+    <canvas id="historyChart" width="600" height="300"></canvas>
+  </div>
+</div>
+
+
+  <!-- Target Temperature Card -->
+  <div class="row justify-content-center mb-4">
+    <div class="col-md-6">
+      <div class="card border-left-success shadow h-100 py-4">
+        <div class="card-body text-center">
+          <h5 class="card-title text-success">Target Temperature</h5>
+          <p class="card-text display-5" id="targetTemp">-- °C</p>
+
+          <!-- Input + Button -->
+          <div class="input-group mt-3" style="max-width: 300px; margin: 0 auto;">
+            <input type="number" id="setTempInput" class="form-control" placeholder="Enter target °C">
+            <button id="setTempBtn" class="btn btn-primary">Set</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+     <!-- Target humidity Card -->
+  <div class="row justify-content-center mb-4">
+    <div class="col-md-6">
+      <div class="card border-left-success shadow h-100 py-4">
+        <div class="card-body text-center">
+          <h5 class="card-title text-success">Target Humidity</h5>
+          <p class="card-text display-5" id="targetHumidity">-- %</p>
+
+          <!-- Input + Button -->
+          <div class="input-group mt-3" style="max-width: 300px; margin: 0 auto;">
+            <input type="number" id="setHumInput" class="form-control" placeholder="Enter target %">
+            <button id="setHumBtn" class="btn btn-primary">Set</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row justify-content-center mb-4">
+  <!-- Meat Mode Card -->
+  <div class="col-md-3 mb-3">
+    <div id="meatCard" class="card border-left-danger shadow h-100 py-4 text-center mode-card">
+      <div class="card-body">
+        <h5 class="card-title text-danger">Meat</h5>
+        <button id="meatBtn" class="btn btn-outline-dark mt-3">Select</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vegetables Mode Card -->
+  <div class="col-md-3 mb-3">
+    <div id="vegCard" class="card border-left-primary shadow h-100 py-4 text-center mode-card">
+      <div class="card-body">
+        <h5 class="card-title text-primary">Vegetables</h5>
+        <button id="vegBtn" class="btn btn-outline-dark mt-3">Select</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cheese Mode Card -->
+  <div class="col-md-3 mb-3">
+    <div id="cheeseCard" class="card border-left-success shadow h-100 py-4 text-center mode-card">
+      <div class="card-body">
+        <h5 class="card-title text-success">Cheese</h5>
+        <button id="cheeseBtn" class="btn btn-outline-dark mt-3">Select</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+     <!-- Device Control Buttons -->
+  <div class="row justify-content-center mb-4">
+    <div class="col-md-3 mb-3">
+      <div class="card shadow h-100 py-4 text-center">
+        <div class="card-body">
+          <h5 class="card-title text-dark">Fridge</h5>
+          <button id="fridgeBtn" class="btn btn-success">Turn On</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+      <div class="card shadow h-100 py-4 text-center">
+        <div class="card-body">
+          <h5 class="card-title text-dark">Humidifier</h5>
+          <button id="humidifierBtn" class="btn btn-success">Turn On</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+      <div class="card shadow h-100 py-4 text-center">
+        <div class="card-body">
+          <h5 class="card-title text-dark">Dehumidifier</h5>
+          <button id="dehumidifierBtn" class="btn btn-success">Turn On</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+
+<!-- Show current target settings -->
+<div class="text-center mt-4">
+  <p class="text-lg font-semibold">Target Temperature: 
+    <span id="targetTemp">--</span> °C
+  </p>
+  <p class="text-lg font-semibold">Target Humidity: 
+    <span id="targetHumidity">--</span> %
+  </p>
+</div>
+   
+</div>
+
+  <!--button id="increaseTemp" class="btn btn-secondary">Increase Target Temp by 1°C</button-->
+
+
+
+  <script>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyD9S9bFeWOgHWIInk2IF2SGacb2vAdWwlk",
+      authDomain: "curing-cabinet.firebaseapp.com",
+      databaseURL: "https://curing-cabinet-default-rtdb.firebaseio.com/",
+      projectId: "curing-cabinet",
+      storageBucket: "curing-cabinet.firebasestorage.app",
+      messagingSenderId: "677333326629",
+      appId: "1:677333326629:web:544599b649ababd12018cc",
+      measurementId: "G-2S42TL5BFH"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // Chart data arrays
+    const tempData = [];
+    const humidityData = [];
+    const labels = [];
+
+    // Setup Chart.js chart
+    const ctx = document.getElementById('fridgeChart').getContext('2d');
+    const fridgeChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Temperature (°C)',
+            data: tempData,
+            borderColor: '#e74a3b',
+            backgroundColor: 'rgba(231, 74, 59, 0.2)',
+            fill: true,
+            tension: 0.3,
+            yAxisID: 'y'
+          },
+          {
+            label: 'Humidity (%)',
+            data: humidityData,
+            borderColor: '#4e73df',
+            backgroundColor: 'rgba(78, 115, 223, 0.2)',
+            fill: true,
+            tension: 0.3,
+            yAxisID: 'y1'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        interaction: {
+          mode: 'index',
+          intersect: false,
+        },
+        stacked: false,
+        scales: {
+          y: {
+            type: 'linear',
+            position: 'left',
+            title: {
+              display: true,
+              text: 'Temperature (°C)'
+            },
+            min: 0,
+            max: 40
+          },
+          y1: {
+            type: 'linear',
+            position: 'right',
+            title: {
+              display: true,
+              text: 'Humidity (%)'
+            },
+            min: 0,
+            max: 100,
+            grid: {
+              drawOnChartArea: false
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Time'
+            }
+          }
+        }
+      }
+    });
+
+    function addData(temp, humidity) {
+      const now = new Date();
+      const timeLabel = now.toLocaleTimeString();
+
+      labels.push(timeLabel);
+      tempData.push(temp);
+      humidityData.push(humidity);
+
+      if (labels.length > 20) {
+        labels.shift();
+        tempData.shift();
+        humidityData.shift();
+      }
+
+      fridgeChart.update();
+    }
+
+    // Listen for Firebase updates
+    let latestTemp = null;
+let latestHumidity = null;
+
+// Function to update chart when both values exist
+function updateChartIfReady() {
+  if (latestTemp !== null && latestHumidity !== null) {
+    addData(latestTemp, latestHumidity);
+  }
+}
+
+// Listen for temp updates
+firebase.database().ref("/fridge/temp").on("value", (tempSnapshot) => {
+  latestTemp = tempSnapshot.val();
+  document.getElementById("temp").textContent = latestTemp.toFixed(1) + " °C";
+  updateChartIfReady();
+});
+
+// Listen for humidity updates
+firebase.database().ref("/fridge/humidity").on("value", (humiditySnapshot) => {
+  latestHumidity = humiditySnapshot.val();
+  document.getElementById("humidity").textContent = latestHumidity.toFixed(1) + " %";
+  updateChartIfReady();
+});
+
+    // this is for entering target temperature 
+document.getElementById('setTempBtn').addEventListener('click', async () => {
+  const inputField = document.getElementById('setTempInput');
+  const newTarget = parseFloat(inputField.value);
+
+  if (isNaN(newTarget)) {
+    alert("❌ Please enter a valid number.");
+    return;
+  }
+
+  const targetTempRef = firebase.database().ref('/fridge/targetTemp');
+  await targetTempRef.set(newTarget);
+
+  alert('✅ Target temperature set to ' + newTarget + '°C');
+  //inputField.value = ""; // clear input after setting
+}); 
+
+    firebase.database().ref("/fridge/targetTemp").on("value", (snapshot) => {
+  if (snapshot.exists()) {
+    const target = snapshot.val();
+    document.getElementById("targetTemp").textContent = target.toFixed(1) + " °C";
+  }
+});
+
+    //this is for entering target humidity
+document.getElementById('setHumBtn').addEventListener('click', async () => {
+  const inputFieldH = document.getElementById('setHumInput');
+  const newTargetH = parseFloat(inputFieldH.value);
+
+  if (isNaN(newTargetH)) {
+    alert("❌ Please enter a valid number.");
+    return;
+  }
+
+  const targetHumRef = firebase.database().ref('/fridge/targetHumidity');
+  await targetHumRef.set(newTargetH);
+
+  alert('✅ Target Humidity set to ' + newTargetH + '%');
+  //inputFieldH.value = ""; // clear input after setting
+});
+
+     firebase.database().ref("/fridge/targetHumidity").on("value", (snapshot) => {
+  if (snapshot.exists()) {
+    const target = snapshot.val();
+    document.getElementById("targetHumidity").textContent = target.toFixed(1) + " %";
+  }
+});
+
+
+//This area is for buttons for meat veg cheese 
+  const cards = {
+  meat: document.getElementById("meatCard"),
+  veg: document.getElementById("vegCard"),
+  cheese: document.getElementById("cheeseCard")
+};
+
+const buttons = {
+  meat: document.getElementById("meatBtn"),
+  veg: document.getElementById("vegBtn"),
+  cheese: document.getElementById("cheeseBtn")
+};
+
+// Preset modes with their colors
+const presets = {
+  meat: { temp: 2, humidity: 80, color: '#f8d7da' },
+  veg: { temp: 6, humidity: 90, color: '#d1ecf1' },
+  cheese: { temp: 10, humidity: 75, color: '#d4edda' }
+};
+
+let activeMode = null;
+
+// Device control button logic
+function setupToggleButton(buttonId, firebasePath) {
+  const button = document.getElementById(buttonId);
+  let state = false; // local state
+
+  // Read initial state from Firebase
+  firebase.database().ref(firebasePath).on("value", snapshot => {
+    if (snapshot.exists()) {
+      state = snapshot.val();
+      button.textContent = state ? "Turn Off" : "Turn On";
+      button.classList.toggle("btn-success", !state);
+      button.classList.toggle("btn-danger", state);
+    }
+  });
+
+  // Toggle on click
+  button.addEventListener("click", () => {
+    state = !state;
+    firebase.database().ref(firebasePath).set(state);
+  });
+}
+
+// Attach the three buttons
+setupToggleButton("fridgeBtn", "/fridge/Fridgeon");
+setupToggleButton("humidifierBtn", "/fridge/Humidifieron");
+setupToggleButton("dehumidifierBtn", "/fridge/Dehumidifieron");
+
+    
+// Function to highlight a mode and update Firebase
+function setMode(mode) {
+  const temp = presets[mode].temp;
+  const humidity = presets[mode].humidity;
+
+  // Update target display
+  document.getElementById("targetTemp").textContent = temp;
+  document.getElementById("targetHumidity").textContent = humidity;
+
+  // Reset all card backgrounds
+  Object.keys(cards).forEach(key => {
+    cards[key].style.backgroundColor = "";
+  });
+
+  // Highlight selected card
+  cards[mode].style.backgroundColor = presets[mode].color;
+  activeMode = mode;
+
+  // Update Firebase
+  firebase.database().ref('/fridge/targetTemp').set(temp);
+  firebase.database().ref('/fridge/targetHumidity').set(humidity);
+}
+
+// Event listeners
+buttons.meat.addEventListener("click", () => setMode("meat"));
+buttons.veg.addEventListener("click", () => setMode("veg"));
+buttons.cheese.addEventListener("click", () => setMode("cheese"));
+
+// ✅ On page load: read current target temp and humidity
+firebase.database().ref('/fridge/targetTemp').once("value").then(snapshot => {
+  const currentTemp = snapshot.val();
+  firebase.database().ref('/fridge/targetHumidity').once("value").then(hSnapshot => {
+    const currentHumidity = hSnapshot.val();
+
+    document.getElementById("targetTemp").textContent = currentTemp;
+    document.getElementById("targetHumidity").textContent = currentHumidity;
+
+    // Find matching mode
+    for (let mode in presets) {
+      if (presets[mode].temp === currentTemp && presets[mode].humidity === currentHumidity) {
+        setMode(mode); // highlight correct card without updating Firebase again
+        break;
+      }
+    }
+  });
+});
+
+    // Historical chart setup
+const historyCtx = document.getElementById('historyChart').getContext('2d');
+const historyChart = new Chart(historyCtx, {
+  type: 'line',
+  data: {
+    labels: [],
+    datasets: [
+      {
+        label: 'Temperature (°C)',
+        data: [],
+        borderColor: '#e74a3b',
+        backgroundColor: 'rgba(231, 74, 59, 0.2)',
+        fill: true,
+        tension: 0.3,
+        yAxisID: 'y'
+      },
+      {
+        label: 'Humidity (%)',
+        data: [],
+        borderColor: '#4e73df',
+        backgroundColor: 'rgba(78, 115, 223, 0.2)',
+        fill: true,
+        tension: 0.3,
+        yAxisID: 'y1'
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    interaction: { mode: 'index', intersect: false },
+    stacked: false,
+    scales: {
+      y: {
+        type: 'linear',
+        position: 'left',
+        title: { display: true, text: 'Temperature (°C)' },
+        min:0,
+        max: 40
+      },
+      y1: {
+        type: 'linear',
+        position: 'right',
+        title: { display: true, text: 'Humidity (%)' },
+        min: 0,
+        max: 100,
+        grid: { drawOnChartArea: false }
+      },
+      x: {
+        title: { display: true, text: 'Time' }
+      }
+    }
+  }
+});
+
+// Load historical data
+function loadHistory(range) {
+  const now = new Date();
+  let startTime = new Date();
+
+  if (range === '24h') {
+    startTime.setDate(now.getDate() - 1);
+  } else if (range === '7d') {
+    startTime.setDate(now.getDate() - 7);
+  } else if (range === '30d') {
+    startTime.setMonth(now.getMonth() - 1);
+  }
+
+  const readingsRef = firebase.database().ref("readings");
+  readingsRef.orderByChild("timestamp").startAt(startTime.toISOString()).once("value", snapshot => {
+    const data = snapshot.val();
+    const labels = [];
+    const temps = [];
+    const hums = [];
+
+    for (let key in data) {
+      labels.push(new Date(data[key].timestamp).toLocaleString());
+      temps.push(data[key].temperature);
+      hums.push(data[key].humidity);
+    }
+
+    historyChart.data.labels = labels;
+    historyChart.data.datasets[0].data = temps;
+    historyChart.data.datasets[1].data = hums;
+    historyChart.update();
+  });
+}
+
+// Load last 24h on startup
+loadHistory('24h');
+
+
+
+//     document.getElementById('increaseTemp').addEventListener('click', async () => {
+//   const targetTempRef = firebase.database().ref('/fridge/targetTemp');
+
+//   // Get current target temp
+//   const snapshot = await targetTempRef.get();
+//   let currentTarget = snapshot.exists() ? snapshot.val() : 5.0;
+
+//   // Increase by 1 degree
+//   currentTarget += 1;
+
+//   // Write new target temp back to Firebase
+//   await targetTempRef.set(currentTarget);
+
+//   alert('Target temperature increased to ' + currentTarget + '°C');
+// });
+
+  </script>
+
+  <!-- Bootstrap JS bundle (includes Popper) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
